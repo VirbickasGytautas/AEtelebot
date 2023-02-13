@@ -1,6 +1,6 @@
 import pandas as pd
 import csv
-from datetime import datetime
+import datetime
 
 #start_date = datetime.strptime(input('Введите дату в формате дд.мм.гггг: '), '%d.%m.%Y')
 
@@ -11,4 +11,6 @@ with open("tmpID.csv", encoding='utf-8') as r_file:
     for row in file_reader:
         count == 0
         count += 1
+    datetime_object = datetime.datetime.now()
+    print(datetime_object)
     print(f'Всего в файле {count} строк.')
