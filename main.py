@@ -2,13 +2,15 @@ import csv
 import telebot
 from telebot import types
 import datetime
-from datetime import datetime
+from datetime import datetime, timedelta
 import time
 import io
 import pandas as pd
 
 start_time = time.time()
 bot = telebot.TeleBot("5941676589:AAExTrhG3aZCkG13obkHyzPE-Z8F5NTxq_A") #API телеграмм бота
+today = datetime.today().strftime('%Y.%m.%d %H:%M:%S')
+file = r'\\pk-55\CSV\tmpID.csv'
 
 @bot.message_handler(commands=['start'])
 def send_welcome(message):
@@ -30,8 +32,12 @@ def menu(message):
 	if message.chat.type == 'private':
 		if message.text == "Статистика УУР":
 			cid = message.chat.id
-			msgSD = bot.send_message(cid,'Введите дату начала периода в формате дд.мм.гггг Ч:М:С (Пример 24.01.2022 07:00:00):')
-			bot.register_next_step_handler(msgSD, stepSD)
+			inMurkup = types.InlineKeyboardMarkup(row_width=1)
+			but10 = types.InlineKeyboardButton("Сегодня", callback_data='Сегодня')
+			but11 = types.InlineKeyboardButton("Вчера", callback_data='Вчера')
+			but12 = types.InlineKeyboardButton("Произвольный период", callback_data='Период')
+			inMurkup.add(but10, but11, but12)
+			bot.send_message(message.chat.id, "Статистика за даты:", reply_markup=inMurkup)
 
 		elif message.text == "Отчеты по качеству":
 			#инлайновая клавиатура
@@ -51,7 +57,8 @@ def stepSD(message):
 	uED = str
 	print(uSD)
 	bot.send_message(cid, "Сохранил!")
-	msgED = bot.send_message(cid,'Введите дату конца периода в формате дд.мм.гггг Ч:М:С (Пример 24.01.2022 07:00:00):')
+	msgED = bot.send_message(cid,'Введите дату конца периода в формате гггг.мм.дд Ч:М:С\n'
+								 '(Пример 2023.01.02 07:00:00):')
 	bot.register_next_step_handler(msgED, stepED)
 
 def stepED(message):
@@ -67,16 +74,13 @@ def stepED(message):
 def resultRD(message):
 	cid = message.chat.id
 	print(uSD,uED)
-	file = 'tmpID.csv'
-	dateparse = lambda x: pd.datetime.strptime(x, "%d.%m.%Y %H:%M:%S")
-	dateparse = str
-	today = datetime.today().strftime('%Y-%m-%d %H:%M:%S')
-	df = pd.read_csv(file, index_col=0, sep=';', names=['1', '2', '3', '4', '5'], on_bad_lines='skip', parse_dates=[4], date_parser=dateparse)
-	df['4'] = pd.to_datetime(df['4'])
+	df = pd.read_csv(file, index_col=0, sep=';', names=['1', '2', '3', '4', '5'], on_bad_lines='skip')
+	df['4'] = pd.to_datetime(df['4'], format='%d.%m.%Y %H:%M:%S')
+
 	newdf = (df['4'] > uSD) & (df['4'] <= uED)
 	newdf = df.loc[newdf]
 	newdf = len(newdf.index)
-	total = (df['4'] > '11.01.2023 00:00:00') & (df['4'] <= datetime.today().strftime('%Y-%m-%d %H:%M:%S'))
+	total = (df['4'] > '2023.01.01 00:00:00') & (df['4'] <= today)
 	total = len(total.index)
 
 	print('Сегодня:', today)
@@ -84,9 +88,60 @@ def resultRD(message):
 	print('За 2023 год:', total )
 	print("Операция выполнена за %s секунд" % (time.time() - start_time))
 
-	bot.send_message(cid, text = "Сегодня:")
-	bot.send_message(cid,today)
-	bot.send_message(cid,"Количество произведенных за выбранный период: ")
+	#bot.send_message(cid, "Сегодня:")
+	#bot.send_message(cid,today)
+	bot.send_message(cid,f'Количество произведенных за выбранный период: \n'
+						 f'С {uSD} по {uED}')
+	bot.send_message(cid, newdf)
+
+def period(message):
+	cid = message.chat.id
+	msgSD = bot.send_message(cid, 'Введите дату начала периода в формате гггг.мм.дд Ч:М:С\n'
+								  '(Пример 2023.02.17 07:00:00):')
+	bot.register_next_step_handler(msgSD, stepSD)
+
+def callback_today(message):
+	cid = message.chat.id
+	yesterday = datetime.today() - timedelta(days=1)
+	yesterday.strftime('%Y.%m.%d %H:%M:%S')
+	df = pd.read_csv(file, index_col=0, sep=';', names=['1', '2', '3', '4', '5'], on_bad_lines='skip')
+	df['4'] = pd.to_datetime(df['4'], format='%d.%m.%Y %H:%M:%S')
+	newdf = (df['4'] > yesterday) & (df['4'] <= today)
+	newdf = df.loc[newdf]
+	newdf = len(newdf.index)
+	total = (df['4'] > '2023.01.01 00:00:00') & (df['4'] <= today)
+	total = len(total.index)
+
+	print('Сегодня:', today)
+	print('Количество произведенных за выбранный период: ', newdf)
+	print('За 2023 год:', total)
+	print("Операция выполнена за %s секунд" % (time.time() - start_time))
+
+	bot.send_message(cid, f'Сегодня: {today}')
+	bot.send_message(cid, "Количество произведенных: ")
+	bot.send_message(cid, newdf)
+
+def callback_yesterday(message):
+	cid = message.chat.id
+	yesterday = datetime.today() - timedelta(days=1)
+	yesterday.strftime('%Y.%m.%d %H:%M:%S')
+	afteryesterday = datetime.today() - timedelta(days=2)
+	afteryesterday.strftime('%Y.%m.%d %H:%M:%S')
+	df = pd.read_csv(file, index_col=0, sep=';', names=['1', '2', '3', '4', '5'], on_bad_lines='skip')
+	df['4'] = pd.to_datetime(df['4'], format='%d.%m.%Y %H:%M:%S')
+	newdf = (df['4'] > afteryesterday) & (df['4'] <= yesterday)
+	newdf = df.loc[newdf]
+	newdf = len(newdf.index)
+	total = (df['4'] > '2023.01.01 00:00:00') & (df['4'] <= today)
+	total = len(total.index)
+
+	print('Сегодня:', today)
+	print('Количество произведенных за выбранный период: ', newdf)
+	print('За 2023 год:', total)
+	print("Операция выполнена за %s секунд" % (time.time() - start_time))
+
+	bot.send_message(cid, f'Сегодня: {today}')
+	bot.send_message(cid, f'Количество произведенных за вчерашний день:')
 	bot.send_message(cid, newdf)
 
 #обработка callback
@@ -106,8 +161,14 @@ def callback_inline(call):
 			elif call.data == 'Отчет4':
 				doc = open('report/Файл4.pdf', 'rb')
 				bot.send_document(call.message.chat.id, doc)
+			elif call.data == 'Сегодня':
+				format(callback_today(call.message))
+			elif call.data == 'Период':
+				format(period(call.message))
+			elif call.data == 'Вчера':
+				format(callback_yesterday(call.message))
 			#удаляем инлайновую клаву
-			bot.edit_message_text(chat_id=call.message.chat.id, message_id=call.message.message_id, text="Форматы отчетов в разработке",
+			bot.edit_message_text(chat_id=call.message.chat.id, message_id=call.message.message_id, text="Результат:",
 				reply_markup=None)
 			#Создаём уведомление
 			bot.answer_callback_query(callback_query_id=call.id, show_alert=False,
