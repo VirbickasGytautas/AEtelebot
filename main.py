@@ -8,6 +8,7 @@ import pandas as pd
 start_time = time.time()
 bot = telebot.TeleBot("5941676589:AAExTrhG3aZCkG13obkHyzPE-Z8F5NTxq_A") #API телеграмм бота
 today = datetime.today().strftime('%Y.%m.%d %H:%M:%S')
+#Файлы csv
 file = r'\\pk-55\CSV\tmpID.csv' #статистика с ДСП
 
 #Белый список
@@ -38,6 +39,7 @@ def check_user(message):
 		markup.add(but1)
 		bot.reply_to(message, "Здравствуй, {0.first_name}\nДля авторизации обратитесь к разработчику"
 					 .format(message.from_user), parse_mode='html', reply_markup=markup)
+		bot.send_message(chatid, userID, userName)
 
 def send_welcome(message):
 	stic = open('stic/welcome.webp', 'rb')  # стикер
