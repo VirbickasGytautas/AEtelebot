@@ -10,6 +10,8 @@ bot = telebot.TeleBot("5941676589:AAExTrhG3aZCkG13obkHyzPE-Z8F5NTxq_A") #API т�
 today = datetime.today().strftime('%Y.%m.%d %H:%M:%S')
 #Файлы csv
 file = r'\\pk-55\CSV\tmpID.csv' #статистика с ДСП
+#TODO Добавить статистику со стендов ПСИ
+#TODO Добавить статистику со стендов настройки блока управления
 
 #Белый список
 list = [415077278,376187604,905566669]
@@ -51,6 +53,7 @@ def send_welcome(message):
 	bot.reply_to(message, "Здравствуй, {0.first_name}\nБот в режиме разработки, многие функции недоступны"
 				 .format(message.from_user), parse_mode='html', reply_markup=markup)
 	bot.send_sticker(message.chat.id, stic)
+#TODO Добавить статистику с участка БиД
 
 @bot.message_handler(commands=['help'])
 def help(message):
@@ -63,6 +66,8 @@ def help(message):
 def message_to_help(message):
 	chatid = 415077278
 	help_message = bot.send_message(message.chat.id, 'Ваше сообщение отправлено разработчику')
+	bot.answer_callback_query(callback_query_id=call.id, show_alert=False,
+							  text='Ваше сообщение отправлено разработчику')
 	bot.forward_message(chatid, message.chat.id, message.message_id)
 
 @bot.message_handler(func=lambda message: True)
@@ -90,6 +95,7 @@ def menu(message):
 			help(message)
 		else:
 			bot.send_message(message.chat.id, "Я не знаю что и ответить")
+
 def stepSD(message):
 	cid = message.chat.id
 	global uSD
@@ -138,11 +144,7 @@ def resultRD(message):
 		print('Количество произведенных за выбранный период: ',newdf)
 		print('За 2023 год:', total )
 		print("Операция выполнена за %s секунд" % (time.time() - start_time))
-
-		#bot.send_message(cid, "Сегодня:")
-		#bot.send_message(cid,today)
-		bot.send_message(cid,f'Количество произведенных за выбранный период: \n'
-							 f'С {uSD} по {uED}')
+		bot.send_message(cid,f'Количество произведенных за выбранный период: \nС {uSD} по {uED}')
 		bot.send_message(cid, newdf)
 	except:
 		print('Ошибка ввода данных')
@@ -230,5 +232,19 @@ def callback_inline(call):
 				text='Выполнено!')
 	except Exception as e:
 		print(repr(e))
+
+
+@bot.message_handler(commands=['stp'])
+
+def stop_command(message):
+	userID = message.chat.id
+	userName = message.chat.first_name
+	print(userName, userID)
+	if userID == 415077278:
+		print("Бот остановлен", userID, userName)
+		bot.send_message(415077278,'Бот будет остановлен')
+		bot.stop_polling()
+	else:
+		chatid = 415077278
 
 bot.polling(none_stop=True)
