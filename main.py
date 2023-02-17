@@ -22,6 +22,7 @@ list = [415077278,376187604,905566669]
 #Илья Билокур - 376187604
 #Дмитрий Ульянов - 905566669
 
+#Авторизация через белый список
 @bot.message_handler(commands=['start'])
 def check_user(message):
 	userID = message.chat.id
@@ -43,6 +44,7 @@ def check_user(message):
 					 .format(message.from_user), parse_mode='html', reply_markup=markup)
 		bot.send_message(chatid, userID, userName)
 
+#Начало использования
 def send_welcome(message):
 	stic = open('stic/welcome.webp', 'rb')  # стикер
 	markup = types.ReplyKeyboardMarkup(resize_keyboard=True)
@@ -55,6 +57,7 @@ def send_welcome(message):
 	bot.send_sticker(message.chat.id, stic)
 #TODO Добавить статистику с участка БиД
 
+#Обработка команды help
 @bot.message_handler(commands=['help'])
 def help(message):
 	cid2 = message.chat.id
@@ -70,6 +73,7 @@ def message_to_help(message):
 							  text='Ваше сообщение отправлено разработчику')
 	bot.forward_message(chatid, message.chat.id, message.message_id)
 
+#Обработка нажатий менб
 @bot.message_handler(func=lambda message: True)
 def menu(message):
 	if message.chat.type == 'private':
@@ -96,6 +100,7 @@ def menu(message):
 		else:
 			bot.send_message(message.chat.id, "Я не знаю что и ответить")
 
+#Объявление переменной содержащее конец периода
 def stepSD(message):
 	cid = message.chat.id
 	global uSD
@@ -107,12 +112,14 @@ def stepSD(message):
 								 '(Пример 2023.01.02 07:00:00):', parse_mode= 'Markdown')
 	bot.register_next_step_handler(msgED, stepED)
 
+#Объявление переменной содержащее начало периода
 def period(message):
 	cid = message.chat.id
 	msgSD = bot.send_message(cid, 'Введите дату *НАЧАЛА* периода в формате гггг.мм.дд Ч:М:С\n'
 								  '(Пример 2023.02.17 07:00:00):', parse_mode= 'Markdown')
 	bot.register_next_step_handler(msgSD, stepSD)
 
+#Переход на обработку результата
 def stepED(message):
 	cid = message.chat.id
 	global uED
@@ -123,6 +130,7 @@ def stepED(message):
 	msgRD = bot.send_message(cid, "Подождите около минуты")
 	resultRD(message)
 
+#Обработка csv за произвольный период
 def resultRD(message):
 	try:
 		stic = open('stic/error.webp', 'rb')
@@ -152,6 +160,7 @@ def resultRD(message):
 		bot.send_message(cid, 'Возможно вы ввели некорректно даты периодов, попробуйте снова')
 		bot.send_sticker(cid, stic)
 
+#Обработка csv за сегодгя
 def callback_today(message):
 	cid = message.chat.id
 	today2 = datetime.today().strftime('%Y.%m.%d')
@@ -176,6 +185,7 @@ def callback_today(message):
 	bot.send_message(cid, "Количество произведенных: ")
 	bot.send_message(cid, newdf)
 
+#Обработка csv за вчерашний день
 def callback_yesterday(message):
 	cid = message.chat.id
 	today2 = datetime.today()
@@ -233,9 +243,8 @@ def callback_inline(call):
 	except Exception as e:
 		print(repr(e))
 
-
+#Команда остановки
 @bot.message_handler(commands=['stp'])
-
 def stop_command(message):
 	userID = message.chat.id
 	userName = message.chat.first_name
