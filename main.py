@@ -1,19 +1,27 @@
-import csv
 import telebot
 from telebot import types
 import datetime
 from datetime import datetime, timedelta
 import time
-import io
 import pandas as pd
 
 start_time = time.time()
 bot = telebot.TeleBot("5941676589:AAExTrhG3aZCkG13obkHyzPE-Z8F5NTxq_A") #API телеграмм бота
 today = datetime.today().strftime('%Y.%m.%d %H:%M:%S')
-file = r'\\pk-55\CSV\tmpID.csv'
+file = r'\\pk-55\CSV\tmpID.csv' #статистика с ДСП
+
+#Белый список
+list('Белый список')
+[415077278,565955,5955564]
+
+#bot.send_message(message.chat.id, 'Доступ ограничен')
 
 @bot.message_handler(commands=['start'])
 def send_welcome(message):
+	userID = message.chat.id
+	userName = message.chat.first_name
+	print('id пользователя:', userID)
+	print('Имя пользователя: ', userName)
 	stic = open('stic/welcome.webp', 'rb') #стикер
 
 	#Меню, клавиатура
@@ -21,9 +29,8 @@ def send_welcome(message):
 	but1 = types.KeyboardButton("Статистика УУР")
 	but2 = types.KeyboardButton("Отчеты по качеству")
 	markup.add(but1, but2)
-
-	bot.reply_to(message, "Здравствуй, {0.first_name}\nБот в режиме разработки, многие функции недоступны, "
-						  "но пофиг пшл нх птчк".format(message.from_user),parse_mode='html',reply_markup=markup)
+	bot.reply_to(message, "Здравствуй, {0.first_name}\nБот в режиме разработки, многие функции недоступны"
+				 .format(message.from_user),parse_mode='html',reply_markup=markup)
 	bot.send_sticker(message.chat.id,stic)
 
 #Ответ бота на определенные команды
@@ -42,7 +49,7 @@ def menu(message):
 		elif message.text == "Отчеты по качеству":
 			#инлайновая клавиатура
 			inMurkup = types.InlineKeyboardMarkup(row_width=1)
-			but1 = types.InlineKeyboardButton("ДЕФЕКТЫ НА ПРОИЗВОДСТВЕ ЭУР 2022 год", callback_data='Отчет1')
+			but1 = types.InlineKeyboardButton("Дефекты УУР 2022 год", callback_data='Отчет1')
 			but2 = types.InlineKeyboardButton("Умная кнопка 2", callback_data='Отчет2')
 			but3 = types.InlineKeyboardButton("Умная кнопка 3", callback_data='Отчет3')
 			but4 = types.InlineKeyboardButton("Умная кнопка 4", callback_data='Отчет4')
@@ -77,12 +84,13 @@ def resultRD(message):
 	df = pd.read_csv(file, index_col=0, sep=';', names=['1', '2', '3', '4', '5'], on_bad_lines='skip')
 	df['4'] = pd.to_datetime(df['4'], format='%d.%m.%Y %H:%M:%S')
 
-	newdf = (df['4'] > uSD) & (df['4'] <= uED)
+	newdf = (df['4'] >= uSD) & (df['4'] <= uED)
 	newdf = df.loc[newdf]
 	newdf = len(newdf.index)
 	total = (df['4'] > '2023.01.01 00:00:00') & (df['4'] <= today)
 	total = len(total.index)
 
+	print('Запрос от:', str(message.chat.first_name), 'ID:',str(message.chat.id))
 	print('Сегодня:', today)
 	print('Количество произведенных за выбранный период: ',newdf)
 	print('За 2023 год:', total )
@@ -102,18 +110,21 @@ def period(message):
 
 def callback_today(message):
 	cid = message.chat.id
+	today2 = datetime.today().strftime('%Y.%m.%d')
 	yesterday = datetime.today() - timedelta(days=1)
-	yesterday.strftime('%Y.%m.%d %H:%M:%S')
+	yesterday = yesterday.strftime('%Y.%m.%d')
+	print(today2, yesterday)
 	df = pd.read_csv(file, index_col=0, sep=';', names=['1', '2', '3', '4', '5'], on_bad_lines='skip')
 	df['4'] = pd.to_datetime(df['4'], format='%d.%m.%Y %H:%M:%S')
-	newdf = (df['4'] > yesterday) & (df['4'] <= today)
+	newdf = (df['4'] >= today2) & (df['4'] <= today)
 	newdf = df.loc[newdf]
 	newdf = len(newdf.index)
 	total = (df['4'] > '2023.01.01 00:00:00') & (df['4'] <= today)
 	total = len(total.index)
 
+	print('Запрос от:', str(message.chat.first_name), 'ID:',str(message.chat.id))
 	print('Сегодня:', today)
-	print('Количество произведенных за выбранный период: ', newdf)
+	print('Количество произведенных: ', newdf)
 	print('За 2023 год:', total)
 	print("Операция выполнена за %s секунд" % (time.time() - start_time))
 
@@ -123,20 +134,22 @@ def callback_today(message):
 
 def callback_yesterday(message):
 	cid = message.chat.id
-	yesterday = datetime.today() - timedelta(days=1)
-	yesterday.strftime('%Y.%m.%d %H:%M:%S')
-	afteryesterday = datetime.today() - timedelta(days=2)
-	afteryesterday.strftime('%Y.%m.%d %H:%M:%S')
+	today2 = datetime.today()
+	today2 = today2.strftime('%Y.%m.%d')
+	afteryesterday = datetime.today() - timedelta(days=1)
+	afteryesterday= afteryesterday.strftime('%Y.%m.%d')
+	print(today2, afteryesterday)
 	df = pd.read_csv(file, index_col=0, sep=';', names=['1', '2', '3', '4', '5'], on_bad_lines='skip')
 	df['4'] = pd.to_datetime(df['4'], format='%d.%m.%Y %H:%M:%S')
-	newdf = (df['4'] > afteryesterday) & (df['4'] <= yesterday)
+	newdf = (df['4'] >= afteryesterday) & (df['4'] <= today2)
 	newdf = df.loc[newdf]
 	newdf = len(newdf.index)
 	total = (df['4'] > '2023.01.01 00:00:00') & (df['4'] <= today)
 	total = len(total.index)
 
+	print('Запрос от:', str(message.chat.first_name), 'ID:',str(message.chat.id))
 	print('Сегодня:', today)
-	print('Количество произведенных за выбранный период: ', newdf)
+	print('Количество произведенных за вчерашний день: ', newdf)
 	print('За 2023 год:', total)
 	print("Операция выполнена за %s секунд" % (time.time() - start_time))
 
@@ -172,7 +185,7 @@ def callback_inline(call):
 				reply_markup=None)
 			#Создаём уведомление
 			bot.answer_callback_query(callback_query_id=call.id, show_alert=False,
-				text='Всего доброго!')
+				text='Выполнено!')
 	except Exception as e:
 		print(repr(e))
 
