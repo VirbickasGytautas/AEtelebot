@@ -12,16 +12,12 @@ file = r'\\pk-55\CSV\tmpID.csv' #статистика с ДСП
 
 #Белый список
 list = [415077278,376187604,905566669]
+#TODO Ограничить доступ по белому списку
+#TODO Создать регистрацию и введение данных в СУБД
 
 #dev - 415077278
 #Илья Билокур - 376187604
 #Дмитрий Ульянов - 905566669
-
-#TODO
-#Ограничить доступ по белому списку
-#Создать регистрацию и введение данных в СУБД
-#Обработка CSV по парт-номерам
-#Обработка нескольких CSV
 
 @bot.message_handler(commands=['start'])
 def check_user(message):
@@ -132,6 +128,8 @@ def resultRD(message):
 		newdf = len(newdf.index)
 		total = (df['4'] > '2023.01.01 00:00:00') & (df['4'] <= today)
 		total = len(total.index)
+		#TODO Обработка CSV по парт-номерам
+		#TODO Обработка нескольких CSV
 
 		print('Запрос от:', str(message.chat.first_name), 'ID:',str(message.chat.id))
 		print('Сегодня:', today)
