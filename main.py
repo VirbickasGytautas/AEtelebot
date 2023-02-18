@@ -3,10 +3,14 @@ from telebot import types
 import datetime
 from datetime import datetime, timedelta
 import time
+from time import sleep
 import pandas as pd
+import schedule
+from threading import Thread
 
 start_time = time.time()
 bot = telebot.TeleBot("5941676589:AAExTrhG3aZCkG13obkHyzPE-Z8F5NTxq_A") #API телеграмм бота
+groupID = 12345
 today = datetime.today().strftime('%Y.%m.%d %H:%M:%S')
 #Файлы csv
 file = r'\\pk-55\CSV\tmpID.csv' #статистика с ДСП
@@ -14,13 +18,15 @@ file = r'\\pk-55\CSV\tmpID.csv' #статистика с ДСП
 #TODO Добавить статистику со стендов настройки блока управления
 
 #Белый список
-list = [415077278,376187604,905566669]
+list = [415077278,376187604,905566669,-815383918,415077278]
 #TODO Ограничить доступ по белому списку
 #TODO Создать регистрацию и введение данных в СУБД
 
 #dev - 415077278
 #Илья Билокур - 376187604
 #Дмитрий Ульянов - 905566669
+#AE STA группа -81538391, 415077278
+
 
 #Авторизация через белый список
 @bot.message_handler(commands=['start'])
@@ -44,6 +50,20 @@ def check_user(message):
 					 .format(message.from_user), parse_mode='html', reply_markup=markup)
 		bot.send_message(chatid, userID, userName)
 
+#Рассылка в группу
+groupID = -81538391
+#TODO Добавить рассылку в группу
+
+#Приветственное сообщение в группе
+@bot.message_handler(commands=['post'])
+def command(message):
+    if message.text.split(" ", 1)[0] == "/post":
+        bot.send_message(groupID, message.text.split(" ", 1)[1])
+@bot.message_handler(content_types=['new_chat_members'])
+def handler_new_member(message):
+    user_name = message.new_chat_members[0].first_name
+    bot.send_message(message.chat.id, f"Добро пожаловать!, {user_name}! \nДля начала взаимодействия с ботом, напишите /start")
+
 #Начало использования
 def send_welcome(message):
 	stic = open('stic/welcome.webp', 'rb')  # стикер
@@ -52,7 +72,7 @@ def send_welcome(message):
 	but2 = types.KeyboardButton("Отчеты по качеству")
 	but3 = types.KeyboardButton("Помощь")
 	markup.add(but1, but2, but3)
-	bot.reply_to(message, "Здравствуй, {0.first_name}\nБот в режиме разработки, многие функции недоступны"
+	bot.reply_to(message, "{0.first_name}\nБот в режиме разработки, многие функции недоступны"
 				 .format(message.from_user), parse_mode='html', reply_markup=markup)
 	bot.send_sticker(message.chat.id, stic)
 #TODO Добавить статистику с участка БиД
@@ -69,36 +89,44 @@ def help(message):
 def message_to_help(message):
 	chatid = 415077278
 	help_message = bot.send_message(message.chat.id, 'Ваше сообщение отправлено разработчику')
-	bot.answer_callback_query(callback_query_id=call.id, show_alert=False,
-							  text='Ваше сообщение отправлено разработчику')
 	bot.forward_message(chatid, message.chat.id, message.message_id)
+
+#Команда остановки
+@bot.message_handler(commands=['stp'])
+def stop_command(message):
+	userID = message.chat.id
+	userName = message.chat.first_name
+	print(userName, userID)
+	if userID == 415077278:
+		print("Бот остановлен", userID, userName)
+		bot.send_message(415077278,'Бот будет остановлен')
+		bot.stop_polling()
 
 #Обработка нажатий менб
 @bot.message_handler(func=lambda message: True)
 def menu(message):
-	if message.chat.type == 'private':
-		if message.text == "Статистика УУР":
-			cid = message.chat.id
-			inMurkup = types.InlineKeyboardMarkup(row_width=1)
-			but10 = types.InlineKeyboardButton("Сегодня", callback_data='Сегодня')
-			but11 = types.InlineKeyboardButton("Вчера", callback_data='Вчера')
-			but12 = types.InlineKeyboardButton("Произвольный период", callback_data='Период')
-			inMurkup.add(but10, but11, but12)
-			bot.send_message(message.chat.id, "Статистика за даты:", reply_markup=inMurkup)
+	if message.text == "Статистика УУР":
+		cid = message.chat.id
+		inMurkup = types.InlineKeyboardMarkup(row_width=1)
+		but10 = types.InlineKeyboardButton("Сегодня", callback_data='Сегодня')
+		but11 = types.InlineKeyboardButton("Вчера", callback_data='Вчера')
+		but12 = types.InlineKeyboardButton("Произвольный период", callback_data='Период')
+		inMurkup.add(but10, but11, but12)
+		bot.send_message(message.chat.id, "Статистика за даты:", reply_markup=inMurkup)
 
-		elif message.text == "Отчеты по качеству":
-			#инлайновая клавиатура
-			inMurkup = types.InlineKeyboardMarkup(row_width=1)
-			but1 = types.InlineKeyboardButton("Дефекты УУР 2022 год", callback_data='Отчет1')
-			but2 = types.InlineKeyboardButton("Умная кнопка 2", callback_data='Отчет2')
-			but3 = types.InlineKeyboardButton("Умная кнопка 3", callback_data='Отчет3')
-			but4 = types.InlineKeyboardButton("Умная кнопка 4", callback_data='Отчет4')
-			inMurkup.add(but1, but2, but3, but4)
-			bot.send_message(message.chat.id, "Умные, не рабочие кнопки", reply_markup=inMurkup)
-		elif message.text == "Помощь":
-			help(message)
-		else:
-			bot.send_message(message.chat.id, "Я не знаю что и ответить")
+	elif message.text == "Отчеты по качеству":
+		#инлайновая клавиатура
+		inMurkup = types.InlineKeyboardMarkup(row_width=1)
+		but1 = types.InlineKeyboardButton("Дефекты УУР 2022 год", callback_data='Отчет1')
+		but2 = types.InlineKeyboardButton("Умная кнопка 2", callback_data='Отчет2')
+		but3 = types.InlineKeyboardButton("Умная кнопка 3", callback_data='Отчет3')
+		but4 = types.InlineKeyboardButton("Умная кнопка 4", callback_data='Отчет4')
+		inMurkup.add(but1, but2, but3, but4)
+		bot.send_message(message.chat.id, "Умные, не рабочие кнопки", reply_markup=inMurkup)
+	elif message.text == "Помощь":
+		help(message)
+	else:
+		bot.send_message(message.chat.id, "Я не знаю что и ответить")
 
 #Объявление переменной содержащее конец периода
 def stepSD(message):
@@ -243,17 +271,5 @@ def callback_inline(call):
 	except Exception as e:
 		print(repr(e))
 
-#Команда остановки
-@bot.message_handler(commands=['stp'])
-def stop_command(message):
-	userID = message.chat.id
-	userName = message.chat.first_name
-	print(userName, userID)
-	if userID == 415077278:
-		print("Бот остановлен", userID, userName)
-		bot.send_message(415077278,'Бот будет остановлен')
-		bot.stop_polling()
-	else:
-		chatid = 415077278
 
 bot.polling(none_stop=True)
