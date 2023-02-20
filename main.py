@@ -5,15 +5,16 @@ from datetime import datetime, timedelta
 import time
 from time import sleep
 import pandas as pd
-import schedule
-from threading import Thread
+#import schedule
+#from threading import Thread
+#import excel2img
 
 start_time = time.time()
 bot = telebot.TeleBot("5941676589:AAExTrhG3aZCkG13obkHyzPE-Z8F5NTxq_A") #API телеграмм бота
-groupID = 12345
 today = datetime.today().strftime('%Y.%m.%d %H:%M:%S')
 #Файлы csv
 file = r'\\pk-55\CSV\tmpID.csv' #статистика с ДСП
+tuneFile1 = r'\\pk-41\stend\epsgranta_ipmstend_new\.arch' #статистика настройки БУ №1
 #TODO Добавить статистику со стендов ПСИ
 #TODO Добавить статистику со стендов настройки блока управления
 
@@ -49,6 +50,11 @@ def check_user(message):
 		bot.reply_to(message, "Здравствуй, {0.first_name}\nДля авторизации обратитесь к разработчику"
 					 .format(message.from_user), parse_mode='html', reply_markup=markup)
 		bot.send_message(chatid, userID, userName)
+
+@bot.message_handler(commands=['full'])
+def fullreport(message):
+	doc = open(file)
+	bot.send_document(message.chat.id, doc)
 
 #Рассылка в группу
 groupID = -81538391
@@ -101,8 +107,10 @@ def stop_command(message):
 		print("Бот остановлен", userID, userName)
 		bot.send_message(415077278,'Бот будет остановлен')
 		bot.stop_polling()
+	else:
+		bot.send_message('Доступ ограничен')
 
-#Обработка нажатий менб
+#Обработка нажатий меню
 @bot.message_handler(func=lambda message: True)
 def menu(message):
 	if message.text == "Статистика УУР":
@@ -167,9 +175,9 @@ def resultRD(message):
 		df = pd.read_csv(file, index_col=0, sep=';', names=['1', '2', '3', '4', '5'], on_bad_lines='skip')
 		df['4'] = pd.to_datetime(df['4'], format='%d.%m.%Y %H:%M:%S')
 
-		newdf = (df['4'] >= uSD) & (df['4'] <= uED)
-		newdf = df.loc[newdf]
-		newdf = len(newdf.index)
+		fullnewdf = (df['4'] >= uSD) & (df['4'] <= uED)
+		fullnewdf = df.loc[fullnewdf]
+		fullnewdf = len(fullnewdf.index)
 		total = (df['4'] > '2023.01.01 00:00:00') & (df['4'] <= today)
 		total = len(total.index)
 		#TODO Обработка CSV по парт-номерам
@@ -177,41 +185,48 @@ def resultRD(message):
 
 		print('Запрос от:', str(message.chat.first_name), 'ID:',str(message.chat.id))
 		print('Сегодня:', today)
-		print('Количество произведенных за выбранный период: ',newdf)
+		print('Количество произведенных за выбранный период: ',fullnewdf)
 		print('За 2023 год:', total )
 		print("Операция выполнена за %s секунд" % (time.time() - start_time))
 		bot.send_message(cid,f'Количество произведенных за выбранный период: \nС {uSD} по {uED}')
-		bot.send_message(cid, newdf)
+		bot.send_message(cid, fullnewdf)
 	except:
 		print('Ошибка ввода данных')
 		bot.send_message(cid, 'Ошибка ввода данных')
 		bot.send_message(cid, 'Возможно вы ввели некорректно даты периодов, попробуйте снова')
 		bot.send_sticker(cid, stic)
+	#Опрос пользователя о необходимости отправки полного отчета
+	#inMurkup = types.InlineKeyboardMarkup(row_width=1)
+	#but1 = types.InlineKeyboardButton("Да", callback_data='Да')
+	#but2 = types.InlineKeyboardButton("Нет", callback_data='Нет')
+	#inMurkup.add(but1, but2)
+	#bot.send_message(message.chat.id, "Получить подробный отчет за текущий период?", reply_markup=inMurkup)
 
-#Обработка csv за сегодгя
+#Обработка csv за сегодня
 def callback_today(message):
 	cid = message.chat.id
-	today2 = datetime.today().strftime('%Y.%m.%d')
+	today2 = datetime.today().strftime('%Y.%m.%d %H:%M:%S')
 	yesterday = datetime.today() - timedelta(days=1)
 	yesterday = yesterday.strftime('%Y.%m.%d')
 	print(today2, yesterday)
 	df = pd.read_csv(file, index_col=0, sep=';', names=['1', '2', '3', '4', '5'], on_bad_lines='skip')
 	df['4'] = pd.to_datetime(df['4'], format='%d.%m.%Y %H:%M:%S')
-	newdf = (df['4'] >= today2) & (df['4'] <= today)
+	newdf = (df['4'] >= datetime.today().strftime('%Y.%m.%d')) & (df['4'] <= today2)
 	newdf = df.loc[newdf]
 	newdf = len(newdf.index)
 	total = (df['4'] > '2023.01.01 00:00:00') & (df['4'] <= today)
 	total = len(total.index)
 
 	print('Запрос от:', str(message.chat.first_name), 'ID:',str(message.chat.id))
-	print('Сегодня:', today)
+	print('Сегодня:', today2)
 	print('Количество произведенных: ', newdf)
 	print('За 2023 год:', total)
 	print("Операция выполнена за %s секунд" % (time.time() - start_time))
 
-	bot.send_message(cid, f'Сегодня: {today}')
+	bot.send_message(cid, f'Сегодня: {today2}')
 	bot.send_message(cid, "Количество произведенных: ")
 	bot.send_message(cid, newdf)
+	return today2
 
 #Обработка csv за вчерашний день
 def callback_yesterday(message):
@@ -254,8 +269,21 @@ def callback_inline(call):
 				doc = open('report/Файл3.pdf', 'rb')
 				bot.send_document(call.message.chat.id, doc)
 			elif call.data == 'Отчет4':
-				doc = open('report/Файл4.pdf', 'rb')
+				doc = open(file)
 				bot.send_document(call.message.chat.id, doc)
+			#TODO Сделать обработку полного отчета и отсылать картинку с диаграммой статистики
+			#elif call.data == 'Да':
+			#	bot.edit_message_text(chat_id=call.message.chat.id, message_id=call.message.message_id,
+			#						  text="Подождите ~20 секунд",
+			#						  reply_markup=None)
+			#	try:
+			#		excel2img.export_img("экспорт.xlsx", "image.png", "", "Sheet2!C14:R28")
+			#		img = open('image.png', 'rb')
+			#		bot.send_photo(call.message.chat.id, img)
+			#	except:
+			#		bot.send_message(call.message.chat.id, 'Ошибка отправки отчета')
+			elif call.data == 'Нет':
+				bot.send_message(call.message.chat.id, 'Отмена отправки отчета')
 			elif call.data == 'Сегодня':
 				format(callback_today(call.message))
 			elif call.data == 'Период':
@@ -270,6 +298,5 @@ def callback_inline(call):
 				text='Выполнено!')
 	except Exception as e:
 		print(repr(e))
-
 
 bot.polling(none_stop=True)
