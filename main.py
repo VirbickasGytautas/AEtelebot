@@ -3,15 +3,27 @@ from telebot import types
 import datetime
 from datetime import datetime, timedelta
 import time
-from time import sleep
 import pandas as pd
+import logging
 #import schedule
 #from threading import Thread
 #import excel2img
 
+
+#Логгирование
+logging.basicConfig(level=logging.DEBUG, filename="log\log.log",filemode="w",
+                    format="%(asctime)s %(levelname)s %(message)s")
+logging.debug("A DEBUG Message")
+logging.info("An INFO")
+logging.warning("A WARNING")
+logging.error("An ERROR")
+logging.critical("A message of CRITICAL severity")
+#TODO Настроить логгирование
+
 start_time = time.time()
 bot = telebot.TeleBot("5941676589:AAExTrhG3aZCkG13obkHyzPE-Z8F5NTxq_A") #API телеграмм бота
 today = datetime.today().strftime('%Y.%m.%d %H:%M:%S')
+
 #Файлы csv
 file = r'\\pk-55\CSV\tmpID.csv' #статистика с ДСП
 tuneFile1 = r'\\pk-41\stend\epsgranta_ipmstend_new\.arch' #статистика настройки БУ №1
@@ -19,14 +31,15 @@ tuneFile1 = r'\\pk-41\stend\epsgranta_ipmstend_new\.arch' #статистика 
 #TODO Добавить статистику со стендов настройки блока управления
 
 #Белый список
-list = [415077278,376187604,905566669,-815383918,415077278]
+list = [415077278,376187604,905566669,-815383918,1759649548]
 #TODO Ограничить доступ по белому списку
 #TODO Создать регистрацию и введение данных в СУБД
 
-#dev - 415077278
-#Илья Билокур - 376187604
-#Дмитрий Ульянов - 905566669
-#AE STA группа -81538391, 415077278
+#415077278 - dev
+#376187604 - Илья Билокур
+#905566669 - Дмитрий Ульянов
+#415077278, -81538391 - AE STA группа
+#1759649548 - Андрей Зозуля
 
 
 #Авторизация через белый список
@@ -43,12 +56,14 @@ def check_user(message):
 		userID = message.chat.id
 		userName = message.chat.first_name
 		bot.forward_message(chatid, message.chat.id, message.message_id, userID, userName)
+		stic = open('stic/ar.webp', 'rb')
 		bot.send_message(message.chat.id, 'Доступ ограничен')
+		bot.send_sticker(message.chat.id, stic)
 		markup = types.ReplyKeyboardMarkup(resize_keyboard=True)
 		but1 = types.KeyboardButton("Помощь")
 		markup.add(but1)
 		bot.reply_to(message, "Здравствуй, {0.first_name}\nДля авторизации обратитесь к разработчику"
-					 .format(message.from_user), parse_mode='html', reply_markup=markup)
+					 .format(message.from_user), reply_markup=markup)
 		bot.send_message(chatid, userID, userName)
 
 @bot.message_handler(commands=['full'])
@@ -72,13 +87,14 @@ def handler_new_member(message):
 
 #Начало использования
 def send_welcome(message):
-	stic = open('stic/welcome.webp', 'rb')  # стикер
+	stic = open('stic/welcome.webp', 'rb')
 	markup = types.ReplyKeyboardMarkup(resize_keyboard=True)
 	but1 = types.KeyboardButton("Статистика УУР")
-	but2 = types.KeyboardButton("Отчеты по качеству")
-	but3 = types.KeyboardButton("Помощь")
-	markup.add(but1, but2, but3)
-	bot.reply_to(message, "{0.first_name}\nБот в режиме разработки, многие функции недоступны"
+	but2 = types.KeyboardButton("Статистика БиД")
+	but3 = types.KeyboardButton("Отчеты по качеству")
+	but4 = types.KeyboardButton("Помощь")
+	markup.add(but1, but2, but3, but4)
+	bot.reply_to(message, "{0.first_name}, Добро пожаловать!\nБот в режиме разработки, многие функции недоступны"
 				 .format(message.from_user), parse_mode='html', reply_markup=markup)
 	bot.send_sticker(message.chat.id, stic)
 #TODO Добавить статистику с участка БиД
@@ -187,9 +203,9 @@ def resultRD(message):
 		print('Сегодня:', today)
 		print('Количество произведенных за выбранный период: ',fullnewdf)
 		print('За 2023 год:', total )
-		print("Операция выполнена за %s секунд" % (time.time() - start_time))
 		bot.send_message(cid,f'Количество произведенных за выбранный период: \nС {uSD} по {uED}')
 		bot.send_message(cid, fullnewdf)
+		return today
 	except:
 		print('Ошибка ввода данных')
 		bot.send_message(cid, 'Ошибка ввода данных')
@@ -253,6 +269,7 @@ def callback_yesterday(message):
 	bot.send_message(cid, f'Сегодня: {today}')
 	bot.send_message(cid, f'Количество произведенных за вчерашний день:')
 	bot.send_message(cid, newdf)
+	return today
 
 #обработка callback
 @bot.callback_query_handler(func=lambda call: True)
@@ -285,10 +302,16 @@ def callback_inline(call):
 			elif call.data == 'Нет':
 				bot.send_message(call.message.chat.id, 'Отмена отправки отчета')
 			elif call.data == 'Сегодня':
+				bot.edit_message_text(chat_id=call.message.chat.id, message_id=call.message.message_id,
+									  text="Подождите...",
+									  reply_markup=None)
 				format(callback_today(call.message))
 			elif call.data == 'Период':
 				format(period(call.message))
 			elif call.data == 'Вчера':
+				bot.edit_message_text(chat_id=call.message.chat.id, message_id=call.message.message_id,
+									  text="Подождите...",
+									  reply_markup=None)
 				format(callback_yesterday(call.message))
 			#удаляем инлайновую клаву
 			bot.edit_message_text(chat_id=call.message.chat.id, message_id=call.message.message_id, text="Результат:",
