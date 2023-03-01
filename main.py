@@ -5,10 +5,8 @@ from datetime import datetime, timedelta
 import time
 import pandas as pd
 import logging
-#import schedule
-#from threading import Thread
-#import excel2img
-
+import schedule
+from threading import Thread
 
 #Логгирование
 logging.basicConfig(level=logging.DEBUG, filename="log\log.log",filemode="w",
@@ -26,21 +24,18 @@ today = datetime.today().strftime('%Y.%m.%d %H:%M:%S')
 
 #Файлы csv
 file = r'\\pk-55\CSV\tmpID.csv' #статистика с ДСП
-tuneFile1 = r'\\pk-41\stend\epsgranta_ipmstend_new\.arch' #статистика настройки БУ №1
+file_tune_41 = r'\\pk-41\stend\epsgranta_ipmstend_new\.arch' #статистика настройки БУ РМ41
 #TODO Добавить статистику со стендов ПСИ
 #TODO Добавить статистику со стендов настройки блока управления
 
 #Белый список
-list = [415077278,376187604,905566669,-815383918,1759649548]
+list = [440032806,415077278,376187604,905566669,-815383918,1759649548]
 #TODO Ограничить доступ по белому списку
 #TODO Создать регистрацию и введение данных в СУБД
 
-#415077278 - dev
-#376187604 - Илья Билокур
-#905566669 - Дмитрий Ульянов
-#415077278, -81538391 - AE STA группа
-#1759649548 - Андрей Зозуля
-
+#376187604 - Илья Билокур		|	#415077278 - dev
+#1759649548 - Андрей Зозуля		|	#905566669 - Дмитрий Ульянов
+#440032806 - Руслан Рустамович	|	#415077278, -81538391 - AE STA группа
 
 #Авторизация через белый список
 @bot.message_handler(commands=['start'])
@@ -65,6 +60,7 @@ def check_user(message):
 		bot.reply_to(message, "Здравствуй, {0.first_name}\nДля авторизации обратитесь к разработчику"
 					 .format(message.from_user), reply_markup=markup)
 		bot.send_message(chatid, userID, userName)
+		return
 
 @bot.message_handler(commands=['full'])
 def fullreport(message):
@@ -97,7 +93,6 @@ def send_welcome(message):
 	bot.reply_to(message, "{0.first_name}, Добро пожаловать!\nБот в режиме разработки, многие функции недоступны"
 				 .format(message.from_user), parse_mode='html', reply_markup=markup)
 	bot.send_sticker(message.chat.id, stic)
-#TODO Добавить статистику с участка БиД
 
 #Обработка команды help
 @bot.message_handler(commands=['help'])
@@ -126,6 +121,24 @@ def stop_command(message):
 	else:
 		bot.send_message('Доступ ограничен')
 
+@bot.message_handler(commands=['ask'])
+def Ask(message):
+	pythoncom.CoInitializeEx(0)
+	office = win32com.client.Dispatch("Excel.Application")
+	wb = office.Workbooks.Open(r"C:\Users\g.virbitskas\PycharmProjects\AEtelebot\экспорт.xlsx")
+	print('Открыт файл')
+	count = wb.Sheets.Count
+	try:
+		for i in range(count):
+			ws = wb.Worksheets[i]
+			ws.Unprotect()
+			pivotCount = ws.PivotTables().Count
+			for j in range(1, pivotCount + 1):
+				ws.PivotTables(j).PivotCache().Refresh()
+				print('Обновлено')
+	except:
+		print('Ошибка обработки файла')
+
 #Обработка нажатий меню
 @bot.message_handler(func=lambda message: True)
 def menu(message):
@@ -142,11 +155,11 @@ def menu(message):
 		#инлайновая клавиатура
 		inMurkup = types.InlineKeyboardMarkup(row_width=1)
 		but1 = types.InlineKeyboardButton("Дефекты УУР 2022 год", callback_data='Отчет1')
-		but2 = types.InlineKeyboardButton("Умная кнопка 2", callback_data='Отчет2')
-		but3 = types.InlineKeyboardButton("Умная кнопка 3", callback_data='Отчет3')
-		but4 = types.InlineKeyboardButton("Умная кнопка 4", callback_data='Отчет4')
+		but2 = types.InlineKeyboardButton("Динамика дефектов на УУР", callback_data='Отчет2')
+		but3 = types.InlineKeyboardButton("ТОП дефектов на УУР", callback_data='Отчет3')
+		but4 = types.InlineKeyboardButton("Гарантия за весь период", callback_data='Отчет4')
 		inMurkup.add(but1, but2, but3, but4)
-		bot.send_message(message.chat.id, "Умные, не рабочие кнопки", reply_markup=inMurkup)
+		bot.send_message(message.chat.id, "Текущие отчеты по качеству:", reply_markup=inMurkup)
 	elif message.text == "Помощь":
 		help(message)
 	else:
@@ -205,18 +218,18 @@ def resultRD(message):
 		print('За 2023 год:', total )
 		bot.send_message(cid,f'Количество произведенных за выбранный период: \nС {uSD} по {uED}')
 		bot.send_message(cid, fullnewdf)
+		# Опрос пользователя о необходимости отправки полного отчета
+		inMurkup = types.InlineKeyboardMarkup(row_width=1)
+		but1 = types.InlineKeyboardButton("Да", callback_data='Да')
+		but2 = types.InlineKeyboardButton("Нет", callback_data='Нет')
+		inMurkup.add(but1, but2)
+		bot.send_message(message.chat.id, "Получить подробный отчет за 2023 год?", reply_markup=inMurkup)
 		return today
 	except:
 		print('Ошибка ввода данных')
 		bot.send_message(cid, 'Ошибка ввода данных')
 		bot.send_message(cid, 'Возможно вы ввели некорректно даты периодов, попробуйте снова')
 		bot.send_sticker(cid, stic)
-	#Опрос пользователя о необходимости отправки полного отчета
-	#inMurkup = types.InlineKeyboardMarkup(row_width=1)
-	#but1 = types.InlineKeyboardButton("Да", callback_data='Да')
-	#but2 = types.InlineKeyboardButton("Нет", callback_data='Нет')
-	#inMurkup.add(but1, but2)
-	#bot.send_message(message.chat.id, "Получить подробный отчет за текущий период?", reply_markup=inMurkup)
 
 #Обработка csv за сегодня
 def callback_today(message):
@@ -235,7 +248,7 @@ def callback_today(message):
 
 	print('Запрос от:', str(message.chat.first_name), 'ID:',str(message.chat.id))
 	print('Сегодня:', today2)
-	print('Количество произведенных: ', newdf)
+	print('Количество произведенных: ',newdf)
 	print('За 2023 год:', total)
 	print("Операция выполнена за %s секунд" % (time.time() - start_time))
 
@@ -262,7 +275,7 @@ def callback_yesterday(message):
 
 	print('Запрос от:', str(message.chat.first_name), 'ID:',str(message.chat.id))
 	print('Сегодня:', today)
-	print('Количество произведенных за вчерашний день: ', newdf)
+	print('Количество произведенных за вчерашний день: ',newdf)
 	print('За 2023 год:', total)
 	print("Операция выполнена за %s секунд" % (time.time() - start_time))
 
@@ -277,28 +290,27 @@ def callback_inline(call):
 	try:
 		if call.message:
 			if call.data == 'Отчет1':
-				doc = open('report/Файл1.pdf', 'rb')
-				bot.send_document(call.message.chat.id, doc)
+				img = open('report/Дефекты за 2022 год.jpg', 'rb')
+				bot.send_photo(call.message.chat.id, img)
 			elif call.data == 'Отчет2':
-				doc = open('report/Файл2.pdf','rb')
-				bot.send_document(call.message.chat.id, doc)
+				img = open('report/Динамика.jpg','rb')
+				bot.send_photo(call.message.chat.id, img)
 			elif call.data == 'Отчет3':
-				doc = open('report/Файл3.pdf', 'rb')
-				bot.send_document(call.message.chat.id, doc)
+				img = open('report/Топ.jpg','rb')
+				bot.send_document(call.message.chat.id, img)
 			elif call.data == 'Отчет4':
-				doc = open(file)
-				bot.send_document(call.message.chat.id, doc)
+				img = open('report/Гарантия.jpg', 'rb')
+				bot.send_document(call.message.chat.id, img)
 			#TODO Сделать обработку полного отчета и отсылать картинку с диаграммой статистики
-			#elif call.data == 'Да':
-			#	bot.edit_message_text(chat_id=call.message.chat.id, message_id=call.message.message_id,
-			#						  text="Подождите ~20 секунд",
-			#						  reply_markup=None)
-			#	try:
-			#		excel2img.export_img("экспорт.xlsx", "image.png", "", "Sheet2!C14:R28")
-			#		img = open('image.png', 'rb')
-			#		bot.send_photo(call.message.chat.id, img)
-			#	except:
-			#		bot.send_message(call.message.chat.id, 'Ошибка отправки отчета')
+			elif call.data == 'Да':
+				bot.edit_message_text(chat_id=call.message.chat.id, message_id=call.message.message_id,
+									  text="Подождите ~20 секунд",
+									  reply_markup=None)
+				try:
+					img = open('image.png', 'rb')
+					bot.send_photo(call.message.chat.id, img)
+				except:
+					bot.send_message(call.message.chat.id, 'Ошибка отправки отчета')
 			elif call.data == 'Нет':
 				bot.send_message(call.message.chat.id, 'Отмена отправки отчета')
 			elif call.data == 'Сегодня':
@@ -322,4 +334,10 @@ def callback_inline(call):
 	except Exception as e:
 		print(repr(e))
 
-bot.polling(none_stop=True)
+while True:
+    try:
+        bot.polling(none_stop=True)
+    except Exception as e:
+        logging.error(e)
+        time.sleep(15)
+#bot.polling(none_stop=True)

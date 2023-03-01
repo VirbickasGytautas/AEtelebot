@@ -1,22 +1,31 @@
-2023-02-21 18:18:24,128 DEBUG A DEBUG Message
-2023-02-21 18:18:24,128 INFO An INFO
-2023-02-21 18:18:24,128 WARNING A WARNING
-2023-02-21 18:18:24,128 ERROR An ERROR
-2023-02-21 18:18:24,128 CRITICAL A message of CRITICAL severity
-2023-02-21 18:18:24,135 DEBUG Starting new HTTPS connection (1): api.telegram.org:443
-2023-02-21 18:18:27,532 DEBUG https://api.telegram.org:443 "GET /bot5941676589:AAExTrhG3aZCkG13obkHyzPE-Z8F5NTxq_A/getMe HTTP/1.1" 200 195
-2023-02-21 18:18:27,537 DEBUG Starting new HTTPS connection (1): api.telegram.org:443
-2023-02-21 18:18:47,756 DEBUG https://api.telegram.org:443 "GET /bot5941676589:AAExTrhG3aZCkG13obkHyzPE-Z8F5NTxq_A/getUpdates?offset=1&timeout=20 HTTP/1.1" 200 23
-2023-02-21 18:19:07,821 DEBUG https://api.telegram.org:443 "GET /bot5941676589:AAExTrhG3aZCkG13obkHyzPE-Z8F5NTxq_A/getUpdates?offset=1&timeout=20 HTTP/1.1" 200 23
-2023-02-21 18:19:10,735 DEBUG https://api.telegram.org:443 "GET /bot5941676589:AAExTrhG3aZCkG13obkHyzPE-Z8F5NTxq_A/getUpdates?offset=1&timeout=20 HTTP/1.1" 200 373
-2023-02-21 18:19:10,744 DEBUG Starting new HTTPS connection (1): api.telegram.org:443
-2023-02-21 18:19:11,010 DEBUG https://api.telegram.org:443 "POST /bot5941676589:AAExTrhG3aZCkG13obkHyzPE-Z8F5NTxq_A/sendMessage?chat_id=415077278&text=%D0%A1%D1%82%D0%B0%D1%82%D0%B8%D1%81%D1%82%D0%B8%D0%BA%D0%B0+%D0%B7%D0%B0+%D0%B4%D0%B0%D1%82%D1%8B%3A&reply_markup=%7B%22inline_keyboard%22%3A+%5B%5B%7B%22text%22%3A+%22%5Cu0421%5Cu0435%5Cu0433%5Cu043e%5Cu0434%5Cu043d%5Cu044f%22%2C+%22callback_data%22%3A+%22%5Cu0421%5Cu0435%5Cu0433%5Cu043e%5Cu0434%5Cu043d%5Cu044f%22%7D%5D%2C+%5B%7B%22text%22%3A+%22%5Cu0412%5Cu0447%5Cu0435%5Cu0440%5Cu0430%22%2C+%22callback_data%22%3A+%22%5Cu0412%5Cu0447%5Cu0435%5Cu0440%5Cu0430%22%7D%5D%2C+%5B%7B%22text%22%3A+%22%5Cu041f%5Cu0440%5Cu043e%5Cu0438%5Cu0437%5Cu0432%5Cu043e%5Cu043b%5Cu044c%5Cu043d%5Cu044b%5Cu0439+%5Cu043f%5Cu0435%5Cu0440%5Cu0438%5Cu043e%5Cu0434%22%2C+%22callback_data%22%3A+%22%5Cu041f%5Cu0435%5Cu0440%5Cu0438%5Cu043e%5Cu0434%22%7D%5D%5D%7D HTTP/1.1" 200 769
-2023-02-21 18:19:12,713 DEBUG https://api.telegram.org:443 "GET /bot5941676589:AAExTrhG3aZCkG13obkHyzPE-Z8F5NTxq_A/getUpdates?offset=320021104&timeout=20 HTTP/1.1" 200 1046
-2023-02-21 18:19:12,720 DEBUG Starting new HTTPS connection (1): api.telegram.org:443
-2023-02-21 18:19:13,074 DEBUG https://api.telegram.org:443 "POST /bot5941676589:AAExTrhG3aZCkG13obkHyzPE-Z8F5NTxq_A/editMessageText?text=%D0%9F%D0%BE%D0%B4%D0%BE%D0%B6%D0%B4%D0%B8%D1%82%D0%B5...&chat_id=415077278&message_id=3893 HTTP/1.1" 200 325
-2023-02-21 18:19:14,227 DEBUG https://api.telegram.org:443 "POST /bot5941676589:AAExTrhG3aZCkG13obkHyzPE-Z8F5NTxq_A/sendMessage?chat_id=415077278&text=%D0%A1%D0%B5%D0%B3%D0%BE%D0%B4%D0%BD%D1%8F%3A+2023.02.21+18%3A19%3A13 HTTP/1.1" 200 308
-2023-02-21 18:19:14,375 DEBUG https://api.telegram.org:443 "POST /bot5941676589:AAExTrhG3aZCkG13obkHyzPE-Z8F5NTxq_A/sendMessage?chat_id=415077278&text=%D0%9A%D0%BE%D0%BB%D0%B8%D1%87%D0%B5%D1%81%D1%82%D0%B2%D0%BE+%D0%BF%D1%80%D0%BE%D0%B8%D0%B7%D0%B2%D0%B5%D0%B4%D0%B5%D0%BD%D0%BD%D1%8B%D1%85%3A+ HTTP/1.1" 200 385
-2023-02-21 18:19:14,512 DEBUG https://api.telegram.org:443 "POST /bot5941676589:AAExTrhG3aZCkG13obkHyzPE-Z8F5NTxq_A/sendMessage?chat_id=415077278&text=695 HTTP/1.1" 200 248
-2023-02-21 18:19:14,624 DEBUG https://api.telegram.org:443 "POST /bot5941676589:AAExTrhG3aZCkG13obkHyzPE-Z8F5NTxq_A/editMessageText?text=%D0%A0%D0%B5%D0%B7%D1%83%D0%BB%D1%8C%D1%82%D0%B0%D1%82%3A&chat_id=415077278&message_id=3893 HTTP/1.1" 200 323
-2023-02-21 18:19:14,713 DEBUG https://api.telegram.org:443 "POST /bot5941676589:AAExTrhG3aZCkG13obkHyzPE-Z8F5NTxq_A/answerCallbackQuery?callback_query_id=1782743338588884625&text=%D0%92%D1%8B%D0%BF%D0%BE%D0%BB%D0%BD%D0%B5%D0%BD%D0%BE%21&show_alert=False HTTP/1.1" 200 25
-2023-02-21 18:19:32,781 DEBUG https://api.telegram.org:443 "GET /bot5941676589:AAExTrhG3aZCkG13obkHyzPE-Z8F5NTxq_A/getUpdates?offset=320021105&timeout=20 HTTP/1.1" 200 23
+2023-03-01 09:19:03,268 DEBUG A DEBUG Message
+2023-03-01 09:19:03,269 INFO An INFO
+2023-03-01 09:19:03,269 WARNING A WARNING
+2023-03-01 09:19:03,269 ERROR An ERROR
+2023-03-01 09:19:03,269 CRITICAL A message of CRITICAL severity
+2023-03-01 09:19:03,276 DEBUG Starting new HTTPS connection (1): api.telegram.org:443
+2023-03-01 09:19:03,279 ERROR HTTPSConnectionPool(host='api.telegram.org', port=443): Max retries exceeded with url: /bot5941676589:AAExTrhG3aZCkG13obkHyzPE-Z8F5NTxq_A/getMe (Caused by NewConnectionError('<urllib3.connection.HTTPSConnection object at 0x0000027B04627460>: Failed to establish a new connection: [Errno 11001] getaddrinfo failed'))
+2023-03-01 09:19:18,290 DEBUG Starting new HTTPS connection (2): api.telegram.org:443
+2023-03-01 09:19:18,290 ERROR HTTPSConnectionPool(host='api.telegram.org', port=443): Max retries exceeded with url: /bot5941676589:AAExTrhG3aZCkG13obkHyzPE-Z8F5NTxq_A/getMe (Caused by NewConnectionError('<urllib3.connection.HTTPSConnection object at 0x0000027B046274C0>: Failed to establish a new connection: [Errno 11001] getaddrinfo failed'))
+2023-03-01 09:19:33,294 DEBUG Starting new HTTPS connection (3): api.telegram.org:443
+2023-03-01 09:19:33,527 DEBUG https://api.telegram.org:443 "GET /bot5941676589:AAExTrhG3aZCkG13obkHyzPE-Z8F5NTxq_A/getMe HTTP/1.1" 200 196
+2023-03-01 09:19:33,531 DEBUG Starting new HTTPS connection (1): api.telegram.org:443
+2023-03-01 09:19:53,746 DEBUG https://api.telegram.org:443 "GET /bot5941676589:AAExTrhG3aZCkG13obkHyzPE-Z8F5NTxq_A/getUpdates?offset=1&timeout=20 HTTP/1.1" 200 23
+2023-03-01 09:20:11,503 DEBUG https://api.telegram.org:443 "GET /bot5941676589:AAExTrhG3aZCkG13obkHyzPE-Z8F5NTxq_A/getUpdates?offset=1&timeout=20 HTTP/1.1" 200 373
+2023-03-01 09:20:11,512 DEBUG Starting new HTTPS connection (1): api.telegram.org:443
+2023-03-01 09:20:14,878 DEBUG https://api.telegram.org:443 "POST /bot5941676589:AAExTrhG3aZCkG13obkHyzPE-Z8F5NTxq_A/sendMessage?chat_id=415077278&text=%D0%A1%D1%82%D0%B0%D1%82%D0%B8%D1%81%D1%82%D0%B8%D0%BA%D0%B0+%D0%B7%D0%B0+%D0%B4%D0%B0%D1%82%D1%8B%3A&reply_markup=%7B%22inline_keyboard%22%3A+%5B%5B%7B%22text%22%3A+%22%5Cu0421%5Cu0435%5Cu0433%5Cu043e%5Cu0434%5Cu043d%5Cu044f%22%2C+%22callback_data%22%3A+%22%5Cu0421%5Cu0435%5Cu0433%5Cu043e%5Cu0434%5Cu043d%5Cu044f%22%7D%5D%2C+%5B%7B%22text%22%3A+%22%5Cu0412%5Cu0447%5Cu0435%5Cu0440%5Cu0430%22%2C+%22callback_data%22%3A+%22%5Cu0412%5Cu0447%5Cu0435%5Cu0440%5Cu0430%22%7D%5D%2C+%5B%7B%22text%22%3A+%22%5Cu041f%5Cu0440%5Cu043e%5Cu0438%5Cu0437%5Cu0432%5Cu043e%5Cu043b%5Cu044c%5Cu043d%5Cu044b%5Cu0439+%5Cu043f%5Cu0435%5Cu0440%5Cu0438%5Cu043e%5Cu0434%22%2C+%22callback_data%22%3A+%22%5Cu041f%5Cu0435%5Cu0440%5Cu0438%5Cu043e%5Cu0434%22%7D%5D%5D%7D HTTP/1.1" 200 770
+2023-03-01 09:20:16,025 DEBUG https://api.telegram.org:443 "GET /bot5941676589:AAExTrhG3aZCkG13obkHyzPE-Z8F5NTxq_A/getUpdates?offset=320021359&timeout=20 HTTP/1.1" 200 1047
+2023-03-01 09:20:16,032 DEBUG Starting new HTTPS connection (1): api.telegram.org:443
+2023-03-01 09:20:16,267 DEBUG https://api.telegram.org:443 "POST /bot5941676589:AAExTrhG3aZCkG13obkHyzPE-Z8F5NTxq_A/editMessageText?text=%D0%9F%D0%BE%D0%B4%D0%BE%D0%B6%D0%B4%D0%B8%D1%82%D0%B5...&chat_id=415077278&message_id=4453 HTTP/1.1" 200 326
+2023-03-01 09:20:17,049 DEBUG https://api.telegram.org:443 "POST /bot5941676589:AAExTrhG3aZCkG13obkHyzPE-Z8F5NTxq_A/sendMessage?chat_id=415077278&text=%D0%A1%D0%B5%D0%B3%D0%BE%D0%B4%D0%BD%D1%8F%3A+2023.03.01+09%3A20%3A16 HTTP/1.1" 200 309
+2023-03-01 09:20:17,140 DEBUG https://api.telegram.org:443 "POST /bot5941676589:AAExTrhG3aZCkG13obkHyzPE-Z8F5NTxq_A/sendMessage?chat_id=415077278&text=%D0%9A%D0%BE%D0%BB%D0%B8%D1%87%D0%B5%D1%81%D1%82%D0%B2%D0%BE+%D0%BF%D1%80%D0%BE%D0%B8%D0%B7%D0%B2%D0%B5%D0%B4%D0%B5%D0%BD%D0%BD%D1%8B%D1%85%3A+ HTTP/1.1" 200 386
+2023-03-01 09:20:17,229 DEBUG https://api.telegram.org:443 "POST /bot5941676589:AAExTrhG3aZCkG13obkHyzPE-Z8F5NTxq_A/sendMessage?chat_id=415077278&text=369 HTTP/1.1" 200 249
+2023-03-01 09:20:17,320 DEBUG https://api.telegram.org:443 "POST /bot5941676589:AAExTrhG3aZCkG13obkHyzPE-Z8F5NTxq_A/editMessageText?text=%D0%A0%D0%B5%D0%B7%D1%83%D0%BB%D1%8C%D1%82%D0%B0%D1%82%3A&chat_id=415077278&message_id=4453 HTTP/1.1" 200 324
+2023-03-01 09:20:17,384 DEBUG https://api.telegram.org:443 "POST /bot5941676589:AAExTrhG3aZCkG13obkHyzPE-Z8F5NTxq_A/answerCallbackQuery?callback_query_id=1782743336046793327&text=%D0%92%D1%8B%D0%BF%D0%BE%D0%BB%D0%BD%D0%B5%D0%BD%D0%BE%21&show_alert=False HTTP/1.1" 200 25
+2023-03-01 09:20:36,095 DEBUG https://api.telegram.org:443 "GET /bot5941676589:AAExTrhG3aZCkG13obkHyzPE-Z8F5NTxq_A/getUpdates?offset=320021360&timeout=20 HTTP/1.1" 200 23
+2023-03-01 09:20:56,460 DEBUG https://api.telegram.org:443 "GET /bot5941676589:AAExTrhG3aZCkG13obkHyzPE-Z8F5NTxq_A/getUpdates?offset=320021360&timeout=20 HTTP/1.1" 200 23
+2023-03-01 09:21:16,845 DEBUG https://api.telegram.org:443 "GET /bot5941676589:AAExTrhG3aZCkG13obkHyzPE-Z8F5NTxq_A/getUpdates?offset=320021360&timeout=20 HTTP/1.1" 200 23
+2023-03-01 09:21:37,227 DEBUG https://api.telegram.org:443 "GET /bot5941676589:AAExTrhG3aZCkG13obkHyzPE-Z8F5NTxq_A/getUpdates?offset=320021360&timeout=20 HTTP/1.1" 200 23
+2023-03-01 09:21:57,302 DEBUG https://api.telegram.org:443 "GET /bot5941676589:AAExTrhG3aZCkG13obkHyzPE-Z8F5NTxq_A/getUpdates?offset=320021360&timeout=20 HTTP/1.1" 200 23
+2023-03-01 09:22:15,351 DEBUG Starting new HTTPS connection (1): api.telegram.org:443
+2023-03-01 09:22:16,128 DEBUG https://api.telegram.org:443 "GET /bot5941676589:AAExTrhG3aZCkG13obkHyzPE-Z8F5NTxq_A/getUpdates?offset=320021360&timeout=20 HTTP/1.1" 409 143
