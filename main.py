@@ -7,6 +7,8 @@ import pandas as pd
 import logging
 import schedule
 from threading import Thread
+import glob
+from pathlib import Path
 
 #Логгирование
 logging.basicConfig(level=logging.DEBUG, filename="log\log.log",filemode="w",
@@ -18,20 +20,28 @@ logging.error("An ERROR")
 logging.critical("A message of CRITICAL severity")
 #TODO Настроить логгирование
 
-start_time = time.time()
 bot = telebot.TeleBot("5941676589:AAExTrhG3aZCkG13obkHyzPE-Z8F5NTxq_A") #API телеграмм бота
 today = datetime.today().strftime('%Y.%m.%d %H:%M:%S')
 
 #Файлы csv
-file = r'\\pk-55\CSV\tmpID.csv' #статистика с ДСП
+DSP_file_00 = r'\\pk-55\CSV\tmpID.csv' #статистика с ДСП
+DSP_file_01 = r'\\pk-55\ID_QR_enter\РАБОЧАЯ\CSV\tmpID.csv' #статистика с ДСП, другое ПО
+#TODO Добавить объединение файлов csv
+
 file_tune_41 = r'\\pk-41\stend\epsgranta_ipmstend_new\.arch' #статистика настройки БУ РМ41
+
+#PSI_01 =
+#PSI_02 =
+#PSI_03 =
+#PSI_04 =
+#PSI_05 =
+#PSI_06 =
+
 #TODO Добавить статистику со стендов ПСИ
 #TODO Добавить статистику со стендов настройки блока управления
 
 #Белый список
 list = [440032806,415077278,376187604,905566669,-815383918,1759649548]
-#TODO Ограничить доступ по белому списку
-#TODO Создать регистрацию и введение данных в СУБД
 
 #376187604 - Илья Билокур		|	#415077278 - dev
 #1759649548 - Андрей Зозуля		|	#905566669 - Дмитрий Ульянов
@@ -64,7 +74,7 @@ def check_user(message):
 
 @bot.message_handler(commands=['full'])
 def fullreport(message):
-	doc = open(file)
+	doc = open(DSP_file_01)
 	bot.send_document(message.chat.id, doc)
 
 #Рассылка в группу
@@ -150,7 +160,6 @@ def menu(message):
 		but12 = types.InlineKeyboardButton("Произвольный период", callback_data='Период')
 		inMurkup.add(but10, but11, but12)
 		bot.send_message(message.chat.id, "Статистика за даты:", reply_markup=inMurkup)
-
 	elif message.text == "Отчеты по качеству":
 		#инлайновая клавиатура
 		inMurkup = types.InlineKeyboardMarkup(row_width=1)
@@ -160,6 +169,10 @@ def menu(message):
 		but4 = types.InlineKeyboardButton("Гарантия за весь период", callback_data='Отчет4')
 		inMurkup.add(but1, but2, but3, but4)
 		bot.send_message(message.chat.id, "Текущие отчеты по качеству:", reply_markup=inMurkup)
+	elif message.text == "Статистика БиД":
+		stic = open('stic/dev.webp', 'rb')
+		bot.send_sticker(message.chat.id, stic)
+
 	elif message.text == "Помощь":
 		help(message)
 	else:
@@ -198,10 +211,11 @@ def stepED(message):
 #Обработка csv за произвольный период
 def resultRD(message):
 	try:
+		start_time = time.time()
 		stic = open('stic/error.webp', 'rb')
 		cid = message.chat.id
 		print('С', uSD, 'По', uED)
-		df = pd.read_csv(file, index_col=0, sep=';', names=['1', '2', '3', '4', '5'], on_bad_lines='skip')
+		df = pd.read_csv(DSP_file_00, index_col=0, sep=';', names=['1', '2', '3', '4', '5'], on_bad_lines='skip')
 		df['4'] = pd.to_datetime(df['4'], format='%d.%m.%Y %H:%M:%S')
 
 		fullnewdf = (df['4'] >= uSD) & (df['4'] <= uED)
@@ -233,12 +247,13 @@ def resultRD(message):
 
 #Обработка csv за сегодня
 def callback_today(message):
+	start_time = time.time()
 	cid = message.chat.id
 	today2 = datetime.today().strftime('%Y.%m.%d %H:%M:%S')
 	yesterday = datetime.today() - timedelta(days=1)
 	yesterday = yesterday.strftime('%Y.%m.%d')
 	print(today2, yesterday)
-	df = pd.read_csv(file, index_col=0, sep=';', names=['1', '2', '3', '4', '5'], on_bad_lines='skip')
+	df = pd.read_csv(DSP_file_00, index_col=0, sep=';', names=['1', '2', '3', '4', '5'], on_bad_lines='skip')
 	df['4'] = pd.to_datetime(df['4'], format='%d.%m.%Y %H:%M:%S')
 	newdf = (df['4'] >= datetime.today().strftime('%Y.%m.%d')) & (df['4'] <= today2)
 	newdf = df.loc[newdf]
@@ -246,26 +261,36 @@ def callback_today(message):
 	total = (df['4'] > '2023.01.01 00:00:00') & (df['4'] <= today)
 	total = len(total.index)
 
+	#----------КОСТЫЛЬ ДЛЯ 2х ФАЙЛОВ CSV----------------
+	df2 = pd.read_csv(DSP_file_01, index_col=0, sep=';', names=['1', '2', '3', '4', '5'], on_bad_lines='skip')
+	df2['4'] = pd.to_datetime(df2['4'], format='%d.%m.%Y %H:%M:%S')
+	newdf2 = (df2['4'] >= datetime.today().strftime('%Y.%m.%d')) & (df2['4'] <= today2)
+	newdf2 = df2.loc[newdf2]
+	newdf2 = len(newdf2.index)
+	newdf3 = newdf2 + newdf
+
+	#logging.debug('Запрос от:', str(message.chat.first_name), str(message.chat.id))
 	print('Запрос от:', str(message.chat.first_name), 'ID:',str(message.chat.id))
 	print('Сегодня:', today2)
-	print('Количество произведенных: ',newdf)
+	print('Количество произведенных: ',newdf3)
 	print('За 2023 год:', total)
 	print("Операция выполнена за %s секунд" % (time.time() - start_time))
 
 	bot.send_message(cid, f'Сегодня: {today2}')
 	bot.send_message(cid, "Количество произведенных: ")
-	bot.send_message(cid, newdf)
+	bot.send_message(cid, newdf3)
 	return today2
 
 #Обработка csv за вчерашний день
 def callback_yesterday(message):
+	start_time = time.time()
 	cid = message.chat.id
 	today2 = datetime.today()
 	today2 = today2.strftime('%Y.%m.%d')
 	afteryesterday = datetime.today() - timedelta(days=1)
 	afteryesterday= afteryesterday.strftime('%Y.%m.%d')
 	print(today2, afteryesterday)
-	df = pd.read_csv(file, index_col=0, sep=';', names=['1', '2', '3', '4', '5'], on_bad_lines='skip')
+	df = pd.read_csv(DSP_file_00, index_col=0, sep=';', names=['1', '2', '3', '4', '5'], on_bad_lines='skip')
 	df['4'] = pd.to_datetime(df['4'], format='%d.%m.%Y %H:%M:%S')
 	newdf = (df['4'] >= afteryesterday) & (df['4'] <= today2)
 	newdf = df.loc[newdf]

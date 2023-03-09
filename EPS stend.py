@@ -9,30 +9,30 @@ pd.set_option('display.max_columns', None)
 pd.set_option('display.max_rows', None)
 start_time = time.time()
 
-#start_date = input('Введите дату начала периода в формате дд.мм.гггг Ч:М:С (Пример 24.01.2022 07:00:00): ')
-#end_date = input('Введите дату конца периода в формате дд.мм.гггг Ч:М:С (Пример 24.01.2022 07:00:00): ')
-
-#with open("tmpID.csv", encoding='utf-8') as r_file:
-#    file_reader = csv.reader(r_file, delimiter = ";")
-#    count = sum(1 for row in file_reader)
-
-#print(f'Всего в файле {count} строк.')
-file = 'tmpID.csv'
+file = r'\\pk-55\CSV\tmpID.csv'
 today = datetime.today().strftime('%d.%m.%Y %H:%M:%S')
+
+start_time = time.time()
+stic = open('stic/error.webp', 'rb')
+uSD = '2023.02.01'
+uED = '2023.02.28'
+
+print('С', uSD, 'По', uED)
 df = pd.read_csv(file, index_col=0, sep=';', names=['1', '2', '3', '4', '5'], on_bad_lines='skip')
-df['4'] = pd.to_datetime(df['4'], format= '%d.%m.%Y %H:%M:%S')
+df['4'] = pd.to_datetime(df['4'], format='%d.%m.%Y %H:%M:%S')
 
+#fullnewdf = (df['4'] >= '2023.02.01') & (df['4'] <= '2023.02.28')
 
-newdf = (df["4"] > '2023.02.12 00:00:00') & (df["4"] <= '2023.02.17 00:00:00')
-newdf = df.loc[newdf]
+pivotTable = pd.pivot_table(df, index=['5'], values=['2'], aggfunc='mean')
+#fullnewdf = df.loc[fullnewdf]
+#fullnewdf = len(fullnewdf.index)
+print(pivotTable)
+total = (df['4'] > '2023.01.01 00:00:00') & (df['4'] <= today)
+total = len(total.index)
+		#TODO Обработка CSV по парт-номерам
+		#TODO Обработка нескольких CSV
 
-total = (df['4'] > '01.01.2023 00:00:00') & (df['4'] <= datetime.today().strftime('%d.%m.%Y %H:%M:%S'))
-
-print(newdf)
-print('Сегодня:', today)
-print('Количество произведенных за выбранный период: ',len(newdf.index))
-print('За 2023 год:', len(total.index))
-
+print(total)
 
 
 print("Операция выполнена за %s секунд" % (time.time() - start_time))
